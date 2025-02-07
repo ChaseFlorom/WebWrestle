@@ -1,56 +1,65 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wrestleverse</title>
-  <!-- Vue via CDN (Vue 2 in this example; for Vue 3, adjust accordingly) -->
-  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-  <!-- Socket.IO client script (served from your server) -->
-  <script src="/socket.io/socket.io.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; }
-    h1 { color: #333; }
-    .notification { color: green; }
-  </style>
+  <title>Wrestleverse - Home</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <div id="app">
-    <h1>Welcome to Wrestleverse</h1>
-    <p>{{ notification }}</p>
-    <button @click="rollDice">Roll Dice</button>
-    <p v-if="diceResult !== null">Dice Roll Result: {{ diceResult }}</p>
-  </div>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Wrestleverse</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto" id="navbarApp">
+          <!-- Vue will dynamically insert elements here -->
+        </ul>
+      </div>
+    </div>
+  </nav>
 
+  <!-- Vue and Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script>
-    // Connect to the Socket.IO server
-    const socket = io();
-
     new Vue({
-      el: '#app',
+      el: "#navbarApp",
       data: {
-        notification: 'Waiting for server message...',
-        diceResult: null
+        username: localStorage.getItem("username") || null
       },
-      created() {
-        // Listen for a welcome message from the server
-        socket.on('welcome', (msg) => {
-          this.notification = msg;
-        });
-
-        // Listen for the dice roll result
-        socket.on('diceResult', (data) => {
-          this.diceResult = data.result;
-        });
+      computed: {
+        isLoggedIn() {
+          return !!this.username;
+        }
       },
       methods: {
-        rollDice() {
-          // Emit an event to the server to roll a dice
-          socket.emit('rollDice');
+        logout() {
+          localStorage.removeItem("token");
+          localStorage.removeItem("username");
+          window.location.href = "index.html"; // Redirect after logout
         }
-      }
+      },
+      template: `
+        <ul class="navbar-nav">
+          <li v-if="!isLoggedIn" class="nav-item v-btn"><a class="nav-link v-btn" href="login.html">Login</a></li>
+          <li v-if="!isLoggedIn" class="nav-item v-btn"><a class="nav-link" href="register.html">Register</a></li>
+          <li v-if="isLoggedIn" class="nav-item">
+            <span class="nav-link">Hello, {{ username }}!</span>
+          </li>
+          <li v-if="isLoggedIn" class="nav-item">
+            <button class="btn btn-danger btn-sm nav-link v-btn" @click="logout">Logout</button>
+          </li>
+        </ul>
+      `
     });
   </script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
