@@ -1,58 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Wrestleverse - Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PrimeVue core CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/primevue/resources/primevue.min.css" />
+  <!-- PrimeIcons -->
+  <link rel="stylesheet" href="https://unpkg.com/primeicons/primeicons.css" />
   <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
 </head>
 <body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
-      <a class="navbar-brand" href="index.html">Wrestleverse</a>
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+  <div id="app">
+    <!-- Shared Navbar (PrimeVue) -->
+    <app-navbar></app-navbar>
 
-  <!-- Register Content -->
-  <div class="container mt-5">
-    <h2>Register</h2>
-    <div id="registerApp">
-      <div class="mb-3">
-        <label for="regUsername" class="form-label">Username</label>
-        <input type="text" class="form-control" id="regUsername" v-model="regUsername" placeholder="Username">
+    <!-- Register Content -->
+    <div class="container mt-5">
+      <h2>Register</h2>
+      <div id="registerForm">
+        <div class="mb-3">
+          <label for="regUsername" class="form-label">Username</label>
+          <input type="text" class="form-control" id="regUsername" v-model="regUsername" placeholder="Username">
+        </div>
+        <div class="mb-3">
+          <label for="regEmail" class="form-label">Email</label>
+          <input type="email" class="form-control" id="regEmail" v-model="regEmail" placeholder="Enter email">
+        </div>
+        <div class="mb-3">
+          <label for="regPassword" class="form-label">Password</label>
+          <input type="password" class="form-control" id="regPassword" v-model="regPassword" placeholder="Password (min. 6 chars)">
+        </div>
+        <!-- PrimeVue Button -->
+        <p-button label="Register" icon="pi pi-user-plus" class="p-button-success" @click="register"></p-button>
+        <p class="mt-2 text-danger" v-if="regMessage">{{ regMessage }}</p>
       </div>
-      <div class="mb-3">
-        <label for="regEmail" class="form-label">Email</label>
-        <input type="email" class="form-control" id="regEmail" v-model="regEmail" placeholder="Enter email">
-      </div>
-      <div class="mb-3">
-        <label for="regPassword" class="form-label">Password</label>
-        <input type="password" class="form-control" id="regPassword" v-model="regPassword" placeholder="Password (min. 6 chars)">
-      </div>
-      <button class="btn btn-primary" @click="register">Register</button>
-      <p class="mt-2 text-danger" v-if="regMessage">{{ regMessage }}</p>
     </div>
   </div>
-
-  <!-- Vue and Axios -->
-  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  
+  <!-- Vue 3 & Axios -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- PrimeVue + Aura theme -->
+  <script src="https://unpkg.com/primevue/umd/primevue.min.js"></script>
+  <script src="https://unpkg.com/@primevue/themes/umd/aura.min.js"></script>
+
+  <!-- Shared Navbar script -->
+  <script src="js/navbar.js"></script>
+
   <script>
-    new Vue({
-      el: "#registerApp",
-      data: {
-        regUsername: '',
-        regEmail: '',
-        regPassword: '',
-        regMessage: ''
+    const { createApp } = Vue;
+
+    const RegisterApp = {
+      data() {
+        return {
+          regUsername: '',
+          regEmail: '',
+          regPassword: '',
+          regMessage: ''
+        };
       },
       methods: {
         async register() {
@@ -62,23 +71,36 @@
               email: this.regEmail,
               password: this.regPassword
             });
-
             this.regMessage = res.data.message;
-
             // Redirect to login page after successful registration
             setTimeout(() => {
-              window.location.href = 'index.html';
+              window.location.href = 'login.html';
             }, 1500);
-
           } catch (error) {
             this.regMessage = error.response?.data?.message || "Registration failed";
           }
         }
       }
-    });
+    };
+
+    const app = createApp(RegisterApp);
+
+    // Use PrimeVue
+    app.use(PrimeVue.Config, { theme: { preset: PrimeVue.Themes.Aura } });
+
+    // Register PrimeVue components
+    app.component('Menubar', PrimeVue.Menubar);
+    app.component('Button', PrimeVue.Button);
+    app.component('p-button', PrimeVue.Button);
+
+    // Register shared navbar
+    app.component('app-navbar', AppNavbar);
+
+    // Mount
+    app.mount('#app');
   </script>
 
-  <!-- Bootstrap JS Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JS (optional) -->
+  <script src="https://unpkg.com/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

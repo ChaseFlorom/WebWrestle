@@ -2,29 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wrestleverse - Login</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- PrimeVue core CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/primevue/resources/primevue.min.css" />
+  <!-- PrimeIcons CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/primeicons/primeicons.css" />
+  <!-- Optional: Bootstrap CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
 </head>
 <body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
-      <a class="navbar-brand" href="index.html">Wrestleverse</a>
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="register.html">Register</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+  <div id="app">
+    <!-- Shared PrimeVue Navbar -->
+    <app-navbar></app-navbar>
 
-  <!-- Login Content -->
-  <div class="container mt-5">
-    <h2>Login</h2>
-    <div id="loginApp">
+    <!-- Login Content -->
+    <div class="container mt-5">
+      <h2>Login</h2>
       <div class="mb-3">
         <label for="loginEmail" class="form-label">Email</label>
         <input type="email" class="form-control" id="loginEmail" v-model="loginEmail" placeholder="Enter email">
@@ -33,44 +28,71 @@
         <label for="loginPassword" class="form-label">Password</label>
         <input type="password" class="form-control" id="loginPassword" v-model="loginPassword" placeholder="Password">
       </div>
-      <button class="btn btn-primary" @click="login">Login</button>
+      <!-- PrimeVue button -->
+      <p-button label="Login" icon="pi pi-sign-in" class="p-button-primary" @click="login"></p-button>
       <p class="mt-2 text-danger" v-if="loginMessage">{{ loginMessage }}</p>
     </div>
   </div>
 
-  <!-- Vue and Axios -->
-  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <!-- Vue 3, Axios -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- PrimeVue + Aura theme preset -->
+  <script src="https://unpkg.com/primevue/umd/primevue.min.js"></script>
+  <script src="https://unpkg.com/@primevue/themes/umd/aura.min.js"></script>
+
+  <!-- Shared Navbar script (defines AppNavbar) -->
+  <script src="js/navbar.js"></script>
+
   <script>
-  new Vue({
-    el: "#loginApp",
-    data: {
-      loginEmail: '',
-      loginPassword: '',
-      loginMessage: ''
-    },
-    methods: {
-      async login() {
-        try {
-          const res = await axios.post('http://localhost:3000/api/auth/login', {
-            email: this.loginEmail,
-            password: this.loginPassword
-          });
+    const { createApp } = Vue;
 
-          // Save login data and redirect to homepage
-          localStorage.setItem('token', res.data.token);
-          localStorage.setItem('username', res.data.user.username);
-          window.location.href = 'index.html';  // Redirect
+    const LoginApp = {
+      data() {
+        return {
+          loginEmail: '',
+          loginPassword: '',
+          loginMessage: ''
+        };
+      },
+      methods: {
+        async login() {
+          try {
+            const res = await axios.post('http://localhost:3000/api/auth/login', {
+              email: this.loginEmail,
+              password: this.loginPassword
+            });
 
-        } catch (error) {
-          this.loginMessage = error.response?.data?.message || "Login failed";
+            // Save token/username and redirect
+            localStorage.setItem('token', res.data.token);
+            localStorage.setItem('username', res.data.user.username);
+            window.location.href = 'index.html';
+          } catch (error) {
+            this.loginMessage = error.response?.data?.message || "Login failed";
+          }
         }
       }
-    }
-  });
-</script>
+    };
 
-  <!-- Bootstrap JS Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    const app = createApp(LoginApp);
+
+    // Configure PrimeVue with the Aura preset
+    app.use(PrimeVue.Config, { theme: { preset: PrimeVue.Themes.Aura } });
+
+    // Register PrimeVue components
+    app.component('Menubar', PrimeVue.Menubar);
+    app.component('Button', PrimeVue.Button);
+    app.component('p-button', PrimeVue.Button); // p-button alias is optional but nice for clarity
+
+    // Register our shared AppNavbar component
+    app.component('app-navbar', AppNavbar);
+
+    // Mount
+    app.mount('#app');
+  </script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://unpkg.com/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
