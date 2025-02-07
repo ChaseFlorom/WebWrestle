@@ -1,0 +1,56 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wrestleverse</title>
+  <!-- Vue via CDN (Vue 2 in this example; for Vue 3, adjust accordingly) -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <!-- Socket.IO client script (served from your server) -->
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    h1 { color: #333; }
+    .notification { color: green; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Welcome to Wrestleverse</h1>
+    <p>{{ notification }}</p>
+    <button @click="rollDice">Roll Dice</button>
+    <p v-if="diceResult !== null">Dice Roll Result: {{ diceResult }}</p>
+  </div>
+
+  <script>
+    // Connect to the Socket.IO server
+    const socket = io();
+
+    new Vue({
+      el: '#app',
+      data: {
+        notification: 'Waiting for server message...',
+        diceResult: null
+      },
+      created() {
+        // Listen for a welcome message from the server
+        socket.on('welcome', (msg) => {
+          this.notification = msg;
+        });
+
+        // Listen for the dice roll result
+        socket.on('diceResult', (data) => {
+          this.diceResult = data.result;
+        });
+      },
+      methods: {
+        rollDice() {
+          // Emit an event to the server to roll a dice
+          socket.emit('rollDice');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
